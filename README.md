@@ -92,34 +92,47 @@ python manage.py createsuperuser
 
 Главная страница
 ![image](https://github.com/user-attachments/assets/6ef56da4-c27b-4fba-b0a9-37f2263f3bad)
+
 Страница о программировании
 ![image](https://github.com/user-attachments/assets/fd15e1c2-ec5f-4ef7-b7f2-0129d86072ad)
 ![image](https://github.com/user-attachments/assets/be0b46c2-adeb-4b4c-bf04-5a97e37a7b86)
+
 Страница о моем увлечении баскетболом
 ![image](https://github.com/user-attachments/assets/c1265744-7df6-4add-b4c8-2326a06f4f05)
 ![image](https://github.com/user-attachments/assets/bcdb57c9-5ede-47e9-acf6-890e1f601b12)
 ![image](https://github.com/user-attachments/assets/4ee6d380-0d4c-489e-a770-f1fb415c81a9)
+
 Форма о добавлении новой игры
 ![image](https://github.com/user-attachments/assets/95b19f10-017e-46b4-bc5c-c58b2461fe40)
+
 Форма добавления нового игрока
 ![image](https://github.com/user-attachments/assets/b169f713-f3fa-451c-8364-22eeba2f89ee)
+
 Страница о музыке, игре на гитаре
 ![image](https://github.com/user-attachments/assets/9f214a09-a6de-42f8-87cb-9f22829bafe0)
+
 Форма добавления песен
 ![image](https://github.com/user-attachments/assets/84bc4e44-519a-4e82-b71b-e2afaed48185)
+
 Страница о тренировках
 ![image](https://github.com/user-attachments/assets/b0df7baf-56b9-4122-9c9c-03456e78aba5)
 ![image](https://github.com/user-attachments/assets/95c77267-788a-45aa-a236-5bd9ed1dabb8)
+
 Форма добавления тренировки
 ![image](https://github.com/user-attachments/assets/5e680ebe-f67b-469a-ab25-e931298b0437)
+
 Страница с постами о катаниях на сноуборде
 ![image](https://github.com/user-attachments/assets/720473cd-5a52-46a0-9888-0bd5f30038f2)
+
 Форма добавления поста о катаниях на сноуборде
 ![image](https://github.com/user-attachments/assets/c7d6c989-095e-4110-9637-1377d9ddbffd)
+
 Канбан-доска с формой добавления задачи. (При выполнении задачи появляется салют)
 ![image](https://github.com/user-attachments/assets/d0f7beb9-1d33-438b-befe-61932af387a0)
+
 Форма регистрации
 ![image](https://github.com/user-attachments/assets/2eacead3-3107-45f2-b970-610f7de231db)
+
 Форма авторизации
 ![image](https://github.com/user-attachments/assets/8c92e1ae-b133-4156-8c90-97fefbb0e8ff)
 
