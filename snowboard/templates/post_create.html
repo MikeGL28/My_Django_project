@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}
+Добавить пост | Сноубординг
+{% endblock %}
+
+{% block body %}
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            background-image: url('/static/css/mount.png');
+            background-size: cover;
+            background-position: 80% center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+</style>
+<div class="container">
+    <h1>Добавить новый пост</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }} <!-- Отображение формы в виде параграфов -->
+        <button type="submit" class="btn btn-primary">Создать пост</button>
+    </form>
+</div>
+{% endblock %}

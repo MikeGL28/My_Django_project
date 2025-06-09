@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Программирование{% endblock %}
+
+{% block body %}
+<h1>На пути в IT 💻</h1>
+
+<div class="about-section d-flex flex-wrap align-items-center">
+  <!-- Левая часть: текст -->
+  <div class="about-text col-md-6 col-12">
+    <p>
+      <strong>Программирование для меня — это не просто увлечение, а путь развития и саморазвития.</strong><br>
+      Всё началось с простого "Hello, World!" на курсах, которые мне посоветовал друг. С тех пор я не остановился — изучил Python, научился создавать телеграм-ботов и интегрировать их с реальными системами.
+    </p>
+
+    <p>
+      Сейчас я активно развиваюсь как разработчик: создаю ботов с помощью <strong>aiogram</strong> и <strong>telebot</strong>, строю API-интерфейсы через <strong>FastAPI</strong> и взаимодействую с CRM-системой <strong>Bitrix24</strong>.
+    </p>
+
+    <p>
+      Мои проекты я умею упаковывать в контейнеры с помощью <strong>Docker</strong>, чтобы их можно было легко запускать на любом сервере. Это делает мои решения не только рабочими, но и масштабируемыми.
+    </p>
+
+    <h4>Почему я выбрал IT?</h4>
+    <ul>
+      <li><strong>Логика + креативность:</strong> программирование сочетает аналитику и возможность создавать что-то новое</li>
+      <li><strong>Непрерывное обучение:</strong> мир технологий быстро развивается, и я расту вместе с ним</li>
+      <li><strong>Результат:</strong> каждая строка кода ведёт к работающему продукту</li>
+    </ul>
+
+    <p>
+      Пока я ещё не профессионал, но каждый день приближаюсь к своей цели — стать полноценным разработчиком и создавать полезные приложения, которые помогут людям и бизнесу работать эффективнее.
+    </p>
+
+    <p class="lead mt-3">
+      Добро пожаловать в мой путь в IT 🧑‍💻<br>
+      Здесь вы найдёте мои проекты, достижения и мысли о технологиях!
+    </p>
+  </div>
+
+  <!-- Правая часть: фото + кнопка -->
+  <div class="photo-container col-md-6 col-12 d-flex flex-column align-items-center">
+    <img src="/media/hobbies/photo_5262930131859663983_y.jpg" alt="Моё фото за компьютером">
+
+    <!-- Кнопка скачивания резюме -->
+    <div class="resume-download mt-4">
+      <a href="{{ resume_url }}" class="btn btn-lg" download style="background-color: black; color: white;">
+        📄 Скачать моё резюме
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Сертификаты -->
+<h2 class="mt-5">Мои достижения 🏆</h2>
+<div class="certificate-grid">
+  {% for cert in certificates %}
+    <div class="certificate-card">
+      <img src="{{ cert.image.url }}" alt="{{ cert.title }}">
+      <h4>{{ cert.title }}</h4>
+      <p>{{ cert.description|default:"" }}</p>
+    </div>
+  {% empty %}
+    <p>Пока нет загруженных сертификатов.</p>
+  {% endfor %}
+</div>
+
+<h2 class="mt-5">Посты из Telegram 📰</h2>
+<div class="telegram-posts mt-4 container">
+  {% if telegram_posts %}
+    {% for post in telegram_posts %}
+      <div class="card shadow-sm mb-4 mx-auto" style="max-width: 800px;">
+        <div class="card-body">
+          <p class="card-text">{{ post.text|linebreaks }}</p>
+
+          {% if post.image %}
+            <img src="{{ post.image.url }}" class="img-fluid rounded mb-2" alt="Изображение поста">
+          {% endif %}
+          <br>
+          <small class="text-muted">{{ post.created_at|date:"d.m.Y H:i" }}</small>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Нет постов из Telegram.</p>
+  {% endif %}
+</div>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  background-image: url('/static/css/ploskaa-planirovka-noutbuka-na-belom-fone.jpg');
+  background-size: cover;
+  background-position: 80% center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Стиль для раздела текст + фото */
+.about-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+.about-text {
+  flex: 1 1 400px;
+}
+
+.photo-container {
+  flex: 1 1 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.photo-container img {
+  max-width: 50%;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Сертификаты */
+.certificate-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+.certificate-card {
+  flex: 0 0 calc(33.33% - 14px);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  text-align: center;
+}
+.certificate-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.certificate-card h4 {
+  font-size: 1rem;
+  margin: 10px 0 5px;
+}
+.certificate-card p {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.telegram-posts {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* Адаптация под планшеты */
+@media (max-width: 768px) {
+  .about-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .certificate-card {
+    flex: 0 0 calc(50% - 10px);
+  }
+}
+
+/* Адаптация под мобильные устройства */
+@media (max-width: 480px) {
+  .certificate-card {
+    flex: 0 0 100%;
+  }
+}
+
+.resume-download a:hover {
+  background-color: #d44545;
+  text-decoration: none;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Блог | Сноубординг
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+
+
+{% block body %}
+
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p>Опубликовано: {{ post.published_at }}</p>
+    <a href="{% url 'post_list' %}">Назад к списку постов</a>
+</body>
+
+{% endblock %}
+
+
+
+{% block footer %}
+{% endblock %}

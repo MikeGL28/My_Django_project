@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% block title %}Добавить тренировку 💪{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h1>Добавить новую тренировку</h1>
+  <p class="mb-4">Заполни форму ниже, чтобы записать тренировку.</p>
+
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+
+    <!-- Дата -->
+    <div class="mb-3">
+      <label for="{{ form.date.id_for_label }}" class="form-label">Дата тренировки</label>
+      <div style="max-width: 200px;">
+      {{ form.date }}
+    </div>
+
+    <!-- Описание -->
+    <div class="mb-3">
+      <label for="{{ form.description.id_for_label }}" class="form-label">Описание</label>
+      <div style="max-width: 610px;">
+      {{ form.description }}
+    </div>
+
+    <!-- Интенсивность -->
+    <div class="mb-3">
+      <label class="form-label">Интенсивность</label>
+      <div class="intensity-rating d-flex gap-2" id="intensityRating">
+        {% for i in "1234" %}
+          <button type="button"
+                  class="btn btn-outline-light intensity-btn"
+                  data-value="{{ forloop.counter }}">{{ forloop.counter }} ★</button>
+        {% endfor %}
+        {{ form.intensity }}
+      </div>
+    </div>
+
+    <!-- Выполнено? -->
+    <div class="form-check mb-4">
+      {{ form.is_completed }}
+      <label class="form-check-label" for="{{ form.is_completed.id_for_label }}">
+        Отметить как выполненную?
+      </label>
+    </div>
+
+    <!-- Подтягивания -->
+    <h4>🏋️‍♂️ Подтягивания</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="{{ form.pull_ups_max.id_for_label }}" class="form-label">Максимум за подход</label>
+        {{ form.pull_ups_max }}
+      </div>
+      <div class="col-md-6">
+        <label for="{{ form.pull_ups_total.id_for_label }}" class="form-label">Всего за тренировку</label>
+        {{ form.pull_ups_total }}
+      </div>
+    </div>
+
+    <!-- Брусья -->
+    <h4>🪵 Брусья</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="{{ form.dips_max.id_for_label }}" class="form-label">Максимум за подход</label>
+        {{ form.dips_max }}
+      </div>
+      <div class="col-md-6">
+        <label for="{{ form.dips_total.id_for_label }}" class="form-label">Всего за тренировку</label>
+        {{ form.dips_total }}
+      </div>
+    </div>
+
+    <!-- Отжимания -->
+    <h4>🖐️ Отжимания от пола</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="{{ form.push_ups_max.id_for_label }}" class="form-label">Максимум за подход</label>
+        {{ form.push_ups_max }}
+      </div>
+      <div class="col-md-6">
+        <label for="{{ form.push_ups_total.id_for_label }}" class="form-label">Всего за тренировку</label>
+        {{ form.push_ups_total }}
+      </div>
+    </div>
+
+    <!-- Бег -->
+    <h4>🏃‍♂️ Бег</h4>
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <label for="{{ form.run_distance.id_for_label }}" class="form-label">Дистанция (км)</label>
+        {{ form.run_distance }}
+      </div>
+      <div class="col-md-6">
+        <label for="{{ form.run_time.id_for_label }}" class="form-label">Время (мин:сек)</label><br>
+        {{ form.run_time }}
+      </div>
+    </div>
+
+    <!-- Кнопки -->
+    <button type="submit" class="btn btn-success">💾 Сохранить</button>
+    <a href="{% url 'workout:training_list' %}" class="btn btn-secondary">↩ Назад</a>
+  </form>
+</div>
+
+<!-- Стили -->
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-image: url('/static/css/фон турник.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: #fff;
+    position: relative;
+  }
+
+  /* Темный полупрозрачный слой поверх фона */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: -1;
+  }
+
+  .container,
+  .about-section,
+  .calendar,
+  .actions {
+    background-color: rgba(255, 255, 255, 0.05); /* Лёгкий прозрачный фон для контента */
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    color: #ffffff !important;
+  }
+
+  h1, h2 {
+    color: #ffffff;
+    text-shadow: 0 0 5px #000;
+  }
+
+  p {
+    color: #f8f8f8;
+    font-size: 1rem;
+  }
+
+  .photo-container img {
+    max-width: 60%;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .grafana-card {
+    background-color: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+    height: 100%;
+  }
+
+  .plotly-graph-div {
+    width: 100%;
+    height: 350px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  }
+
+  .plotly .hoverlabel {
+    background-color: #222222 !important;
+    border: none !important;
+    font-size: 14px !important;
+  }
+
+  .calendar {
+    margin-top: 30px;
+  }
+
+  .calendar-header {
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: #ffffff;
+    text-shadow: 0 0 5px #000;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    max-width: 500px;
+    margin-bottom: 10px;
+  }
+
+  .day-cell {
+    width: 30px;
+    height: 30px;
+    background-color: #ebedf0;
+    border-radius: 6px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    color: #333;
+    font-weight: bold;
+  }
+
+  .day-cell:hover {
+    transform: scale(1.1);
+    z-index: 1;
+  }
+
+  /* Цвета интенсивности */
+  .day-cell.level-0 { background-color: #aaaaaa; }
+  .day-cell.level-1 { background-color: #ffcccc; }
+  .day-cell.level-2 { background-color: #ffb3b3; }
+  .day-cell.level-3 { background-color: #ff4d4d; }
+  .day-cell.level-4 { background-color: #cc0000; }
+
+  .calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+
+  .legend-item.level-0::before,
+  .legend-item.level-1::before,
+  .legend-item.level-2::before,
+  .legend-item.level-3::before,
+  .legend-item.level-4::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    border-radius: 4px;
+  }
+
+  .legend-item.level-0::before { background-color: #aaaaaa; }
+  .legend-item.level-1::before { background-color: #ffcccc; }
+  .legend-item.level-2::before { background-color: #ffb3b3; }
+  .legend-item.level-3::before { background-color: #ff4d4d; }
+  .legend-item.level-4::before { background-color: #cc0000; }
+
+  .btn-primary {
+    background-color: #cc0000;
+    border: none;
+    color: #000;
+    font-weight: bold;
+  }
+
+  .btn-primary:hover {
+    background-color: green;
+    color: #000;
+  }
+  .intensity-rating .btn {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    transition: all 0.2s ease;
+  }
+
+  .intensity-rating .btn.active {
+    background-color: #cc0000 !important;
+    color: white !important;
+    transform: scale(1.1);
+  }
+
+  .intensity-rating .btn:hover:not(.active) {
+    background-color: #cc0000;
+    color: white;
+  }
+</style>
+{% block extra_styles %}
+<style>
+  /* Стили для светлого navbar только на этой странице */
+  .navbar {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .navbar .navbar-brand,
+  .navbar .nav-link,
+  .navbar .dropdown-item,
+  .navbar .dropdown-toggle {
+    color: #000 !important;
+    font-weight: 500;
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,0,0,0.7)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+  }
+
+  .dropdown-menu {
+    background-color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background-color: #f1f1f1 !important;
+    color: #000 !important;
+  }
+
+  .btn-white-custom {
+    color: #000 !important;
+    border: none;
+    font-weight: 500;
+  }
+
+  .btn-white-custom:hover,
+  .btn-white-custom:focus {
+    background-color: #f1f1f1;
+    color: #000 !important;
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,0,0,0.5)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+
+  .navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.5);
+  }
+</style>
+
+<!-- JS для валидации формы -->
+<script>
+// Пример активации Bootstrap валидации
+(function () {
+  'use strict';
+  window.addEventListener('load', function () {
+    var forms = document.getElementsByClassName('needs-validation');
+    Array.prototype.filter.call(forms, function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.intensity-btn');
+    const hiddenIntensityInput = document.getElementById('id_intensity');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function () {
+        const value = this.getAttribute('data-value');
+        hiddenIntensityInput.value = value;
+
+        // Обновляем активный класс
+        buttons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Подсвечиваем текущее значение (при редактировании)
+    const currentValue = hiddenIntensityInput.value;
+    if (currentValue) {
+      const currentBtn = document.querySelector(`[data-value="${currentValue}"]`);
+      if (currentBtn) currentBtn.click();
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}
