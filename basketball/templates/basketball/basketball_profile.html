@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block title %}Баскетбол 🏀{% endblock %}
+
+{% block body %}
+<h1>Баскетбол 🏀</h1>
+
+<div class="about-section d-flex flex-wrap align-items-center">
+  <!-- Левая часть: текст -->
+  <div class="about-text col-md-6 col-12">
+    <p>
+      <strong>Баскетбол — это не просто игра, а целый образ жизни.</strong><br>
+      Я с детства увлекаюсь этим видом спорта, потому что баскетбол — командная игра, где каждый важен,
+      а успех зависит от слаженной работы всей команды. Мне нравится чувство единства, взаимопонимания
+      на площадке и азарт соревнований, когда мы вместе стремимся к победе.
+    </p>
+
+    <p>
+      На этой странице я делюсь своей любовью к баскетболу и показываю, как мы растём как команда. Здесь вы найдёте информацию о нас — игроках, наших достижениях, тренировках и игровой статистике.
+    </p>
+
+    <h4>Кто мы?</h4>
+    <p>
+      У нас в команде собраны разноплановые игроки: от ловких защитников до мощных центровых. Каждому из нас присущи свои особенности игры, но всех объединяет одно — желание становиться лучше и побеждать.
+    </p>
+
+    <p><strong>Вы можете посмотреть карточки игроков, где указаны:</strong></p>
+    <ul>
+      <li>Имя и фамилия</li>
+      <li>Позиция на площадке</li>
+      <li>Рост и вес</li>
+      <li>Эффективность (среднее количество набранных очков за игру)</li>
+    </ul>
+
+    <p>
+      Карточки оформлены с фотографиями и краткими описаниями, чтобы вы могли познакомиться с каждым из нас поближе.
+    </p>
+
+    <h4>Статистика и эффективность</h4>
+    <p>
+      Также представлена общая таблица игроков, где можно сравнить результативность каждого: сколько двухочковых и трехочковых бросков реализовано, сколько всего набрано очков и какова средняя результативность.
+    </p>
+
+    <h4>Тренировки и матчи</h4>
+    <p>
+      Еще одна важная часть — информация о моих тренировках и матчах. В таблице указаны даты, количество забитых 2- и 3-очковых бросков, а также общее число набранных очков за каждую игру. Есть и общий средний показатель — так проще отслеживать прогресс.
+    </p>
+
+    <h4>Календарь активности</h4>
+    <p>
+      Внизу страницы расположен интерактивный календарь тренировок, где отображено, в какие дни я выходил на площадку. Цвет ячеек показывает уровень активности — так удобно следить за регулярностью занятий и мотивировать себя не сбиваться с графика.
+    </p>
+
+    <p class="lead mt-4">
+      Эта страница — не просто рассказ о хобби. Это история развития, постоянного движения вперед и веры в силу команды.<br>
+      <strong>Добро пожаловать в наш баскетбольный мир! 🏀</strong>
+    </p>
+  </div>
+
+  <!-- Правая часть: фото -->
+  <div class="photo-container col-md-6 col-12 d-flex justify-content-center">
+    <img src="/media/hobbies/photo_5258289733228950693_y.jpg" alt="Моё фото на баскетбольной площадке">
+  </div>
+</div>
+
+<!-- Статистика игроков -->
+<h2 class="mt-5">Наши игроки 🏆</h2>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>ФИО</th>
+      <th>Позиция</th>
+      <th>2-очки</th>
+      <th>3-очки</th>
+      <th>Общие очки</th>
+      <th>Средние очки</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for player in players %}
+      <tr>
+        <td>{{ player.full_name }}</td>
+        <td>{{ player.position }}</td>
+        <td>{{ player.two_pointers }}</td>
+        <td>{{ player.three_pointers }}</td>
+        <td>{{ player.total_points }}</td>
+        <td>{{ player.avg_points|floatformat:2 }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">Пока нет игроков.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="row row-cols-1 row-cols-md-5 g-4 mt-2">
+  {% for player in players %}
+    <div class="col">
+      <div class="card h-100 shadow-sm" style="height: 500px; position: relative;">
+        <!-- Фото игрока -->
+        <img src="{{ player.photo.url }}" class="card-img-top" alt="{{ player.full_name }}" style="height: 500px; object-fit: cover;">
+
+        <!-- Текстовое описание поверх фото -->
+        <div class="card-img-overlay d-flex flex-column justify-content-end" style="background: linear-gradient(to top, rgba(255, 255, 255, 0.3) 30%, transparent);">
+          <div style="background-color: rgba(255, 255, 255, 0.65); padding: 1rem; border-radius: 6px;">
+            <h5 class="card-title">{{ player.full_name }}</h5>
+            <p class="card-text"><strong>Позиция:</strong> {{ player.position|default:"—" }}</p>
+            <p class="card-text"><strong>Рост:</strong> {{ player.height|default:"—" }} см</p>
+            <p class="card-text"><strong>Вес:</strong> {{ player.weight|default:"—" }} кг</p>
+            <p class="card-text"><strong>Эффективность:</strong> {{ player.avg_points|floatformat:2 }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p>Нет игроков для отображения.</p>
+  {% endfor %}
+</div>
+
+<!-- Таблица тренировок / игр -->
+<h2 class="mt-5">Мои игры и тренировки 🏀</h2>
+<table class="table table-bordered table-hover">
+  <thead class="table-success">
+    <tr>
+      <th>Дата</th>
+      <th>2-очковые</th>
+      <th>3-очковые</th>
+      <th>Всего очков</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if games %}
+      {% for game in games %}
+        <tr>
+          <td>{{ game.date }}</td>
+          <td>{{ game.two_pointers }}</td>
+          <td>{{ game.three_pointers }}</td>
+          <td>{{ game.total_points }}</td>
+        </tr>
+      {% endfor %}
+      <tr class="table-info">
+        <td colspan="3" class="text-end"><strong>Среднее по всем играм:</strong></td>
+        <td><strong>{{ avg_points }}</strong></td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="4" class="text-center">Нет записей о тренировках</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
+
+<!-- Календарь тренировок -->
+<h2 class="mt-5">Календарь тренировок 📅</h2>
+
+<!-- Блок с заголовком и навигацией -->
+<div class="d-flex align-items-center gap-3 mb-2" style="max-width: max-content;">
+  <a href="{% url 'basketball:basketball_profile_with_date' prev_year prev_month %}" class="btn btn-outline-success btn-sm">< Предыдущий</a>
+  <h5 class="m-0">{{ month_name }} {{ year }}</h5>
+  <a href="{% url 'basketball:basketball_profile_with_date' next_year next_month %}" class="btn btn-outline-success btn-sm">Следующий ></a>
+</div>
+
+<!-- Календарь -->
+<div class="calendar">
+  <div class="calendar-grid">
+    {% for day in calendar %}
+      <div class="day-cell level-{{ day.level }}" title="{{ day.day }} {{ month_name }}: {{ day.level }}">
+        {{ day.day }}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="calendar-legend mt-3">
+    <span class="legend-item level-0">Нет данных</span>
+    <span class="legend-item level-1">Тренировка</span>
+  </div>
+</div>
+
+<!-- Ссылки на действия -->
+<div class="actions mt-4">
+  <a href="{% url 'basketball:add_basketball_game' %}" class="btn btn-primary">Добавить игру</a>
+  <a href="{% url 'basketball:add_player' %}" class="btn btn-success">Добавить игрока</a>
+</div>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  background-image: url('/static/css/basketbol-naa-spinka.jpg');
+  background-size: cover;
+  background-position: 80% center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-container {
+  flex: 1 1 300px;
+  display: flex;
+  justify-content: center;
+}
+.photo-container img {
+  max-width: 50%;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calendar {
+  margin-top: 20px;
+}
+.calendar-header {
+  font-weight: bold;
+  text-align: left;
+  margin-bottom: 10px;
+  color: #333;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  max-width: 500px;
+}
+.day-cell {
+  width: 30px;
+  height: 30px;
+  background-color: #ebedf0;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.day-cell:hover {
+  transform: scale(1.1);
+}
+/* Уровни активности */
+.day-cell.level-0 { background-color: #ebedf0; }
+.day-cell.level-1 { background-color: #c6e48b; }
+.day-cell.level-2 { background-color: #7bc96f; }
+.day-cell.level-3 { background-color: #28a745; }
+.day-cell.level-4 { background-color: #21863a; }
+
+.calendar-legend {
+  display: flex;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+.legend-item.level-0::before,
+.legend-item.level-1::before,
+.legend-item.level-2::before,
+.legend-item.level-3::before,
+.legend-item.level-4::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  border-radius: 4px;
+}
+.legend-item.level-0::before { background-color: #ebedf0; }
+.legend-item.level-1::before { background-color: #c6e48b; }
+.legend-item.level-2::before { background-color: #7bc96f; }
+.legend-item.level-3::before { background-color: #28a745; }
+.legend-item.level-4::before { background-color: #21863a; }
+
+.btn-sm {
+  padding: 0.1rem 0.5rem;
+  font-size: 1.25rem;
+}
+
+/* Отступ между кнопками и заголовком */
+.gap-3 > :not(.gap-3 > *) {
+  margin-right: 1rem;
+}
+.gap-3 > :last-child {
+  margin-right: 0;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,730 @@
+{% extends "base.html" %}
+{% block title %}Kanban Доска{% endblock %}
+
+
+{% block body %}
+<!-- Форма добавления задачи -->
+<div class="mb-4" style="max-width: 400px;">
+  <form method="post">
+    {% csrf_token %}
+    <!-- Название задачи -->
+    <div class="mb-3">
+      <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+      {{ form.title }}
+    </div>
+
+    <!-- Категория — теперь это группа кнопок -->
+    <div class="mb-3">
+      <label class="form-label">Категория</label>
+      <div class="btn-group w-100" role="group" data-bs-toggle="buttons">
+        <input type="radio" class="btn-check" name="category_radio" id="personal" value="personal" autocomplete="off">
+        <label class="btn btn-outline-primary" for="personal">Личное</label>
+
+        <input type="radio" class="btn-check" name="category_radio" id="work" value="work" autocomplete="off">
+        <label class="btn btn-outline-success" for="work">Работа</label>
+      </div>
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="priority" name="priority">
+      <label class="form-check-label text-white" for="priority">Приоритетная задача</label>
+    </div>
+    <!-- Комментарий -->
+    <div class="mb-3">
+      <label for="{{ form.comment.id_for_label }}" class="form-label">{{ form.comment.label }}</label>
+      {{ form.comment }}
+    </div>
+
+    <!-- Кнопка добавления -->
+    <button type="submit" class="btn btn-outline-success">Добавить задачу</button>
+  </form>
+  <div class="action-buttons mt-2 mb-2">
+    <button type="button" class="btn btn-outline-secondary" onclick="toggleArchive()" id="archive-toggle-btn">Проверить архив</button>
+  </div>
+</div>
+<!-- Основная доска -->
+<div class="d-flex gap-3 overflow-auto pb-3 p-3">
+  <!-- To Do Column -->
+  <div id="todo-column" class="kanban-column">
+    <h5>Задача</h5>
+    {% for task in to_do_tasks %}
+      <div class="task-card draggable" draggable="true" data-task-id="{{ task.id }}">
+        <div class="task-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ task.title }}</h6>
+          {% if task.category %}
+            <span class="badge rounded-pill" style="background-color: {{ task.category.color }}; color: white;">
+              {{ task.category.name }}
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">Без категории</span>
+          {% endif %}
+        </div>
+        {% if task.is_priority %}
+          <span class="badge bg-danger ms-2" title="Приоритетная задача">!</span>
+        {% endif %}
+        <!-- Теги -->
+        {% if task.tags.all %}
+          <div class="mt-2 mb-2">
+            {% for tag in task.tags.all %}
+              <span class="badge bg-light text-dark border me-1" style="font-size: 0.7rem;">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Отображение комментария -->
+        <div class="comment-display mt-2 small mb-2">
+          <small class="text-muted d-block">Комментарий:</small>
+          {% if task.comment %}
+            <div class="comment-text" style="font-size: 0.85rem;">{{ task.comment|linebreaksbr }}</div>
+          {% else %}
+            <div class="comment-text text-muted" style="font-size: 0.85rem;">Нет комментария</div>
+          {% endif %}
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="showEditCommentForm(this, {{ task.id }})">Редактировать</button>
+        </div>
+
+        <!-- Форма редактирования комментария (скрыта по умолчанию) -->
+        <div class="comment-edit-form mb-2" style="display: none;">
+          <form onsubmit="saveComment(event, {{ task.id }})">
+            <textarea class="form-control form-control-sm comment-input" rows="2" placeholder="Введите комментарий...">{% if task.comment %}{{ task.comment }}{% endif %}</textarea>
+            <div class="mt-1 d-flex gap-2">
+              <button type="submit" class="btn btn-sm btn-success">Сохранить</button>
+              <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit(this)">Отмена</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons mt-auto">
+          <button type="button" class="btn-task btn-sm btn-success w-100" onclick="updateTaskStatus({{ task.id }}, 'in_progress')">Взять в работу</button>
+          <button type="button" class="btn-task btn-sm btn-danger w-100" onclick="deleteTask({{ task.id }})">Удалить</button>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">Нет задач</p>
+    {% endfor %}
+  </div>
+
+  <!-- In Progress Column -->
+  <div id="inprogress-column" class="kanban-column">
+    <h5>В работе</h5>
+    {% for task in in_progress_tasks %}
+      <div class="task-card draggable" draggable="true" data-task-id="{{ task.id }}">
+        <div class="task-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ task.title }}</h6>
+          {% if task.category %}
+            <span class="badge rounded-pill" style="background-color: {{ task.category.color }}; color: white;">
+              {{ task.category.name }}
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">Без категории</span>
+          {% endif %}
+        </div>
+        {% if task.is_priority %}
+          <span class="badge bg-danger ms-2" title="Приоритетная задача">!</span>
+        {% endif %}
+        <!-- Теги -->
+        {% if task.tags.all %}
+          <div class="mt-2 mb-2">
+            {% for tag in task.tags.all %}
+              <span class="badge bg-light text-dark border me-1" style="font-size: 0.7rem;">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Отображение комментария -->
+        <div class="comment-display mt-2 small mb-2">
+          <small class="text-muted d-block">Комментарий:</small>
+          {% if task.comment %}
+            <div class="comment-text" style="font-size: 0.85rem;">{{ task.comment|linebreaksbr }}</div>
+          {% else %}
+            <div class="comment-text text-muted" style="font-size: 0.85rem;">Нет комментария</div>
+          {% endif %}
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="showEditCommentForm(this, {{ task.id }})">Редактировать</button>
+        </div>
+
+        <!-- Форма редактирования комментария (скрыта по умолчанию) -->
+        <div class="comment-edit-form mb-2" style="display: none;">
+          <form onsubmit="saveComment(event, {{ task.id }})">
+            <textarea class="form-control form-control-sm comment-input" rows="2" placeholder="Введите комментарий...">{% if task.comment %}{{ task.comment }}{% endif %}</textarea>
+            <div class="mt-1 d-flex gap-2">
+              <button type="submit" class="btn btn-sm btn-success">Сохранить</button>
+              <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit(this)">Отмена</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons mt-auto">
+          <button type="button" class="btn-task btn-sm btn-success w-100" onclick="updateTaskStatus({{ task.id }}, 'on_review')">Передать на проверку</button>
+          <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="updateTaskStatus({{ task.id }}, 'to_do')">Откатить</button>
+          <button type="button" class="btn-task btn-sm btn-danger w-100" onclick="deleteTask({{ task.id }})">Удалить</button>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">Нет задач</p>
+    {% endfor %}
+  </div>
+  <!-- On Review Column -->
+  <div id="onreview-column" class="kanban-column">
+    <h5>На проверке</h5>
+    {% for task in on_review_tasks %}
+      <div class="task-card draggable" draggable="true" data-task-id="{{ task.id }}">
+        <div class="task-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ task.title }}</h6>
+          {% if task.category %}
+            <span class="badge rounded-pill" style="background-color: {{ task.category.color }}; color: white;">
+              {{ task.category.name }}
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">Без категории</span>
+          {% endif %}
+        </div>
+
+        <!-- Теги -->
+        {% if task.tags.all %}
+          <div class="mt-2 mb-2">
+            {% for tag in task.tags.all %}
+              <span class="badge bg-light text-dark border me-1" style="font-size: 0.7rem;">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Отображение комментария -->
+        <div class="comment-display mt-2 small mb-2">
+          <small class="text-muted d-block">Комментарий:</small>
+          {% if task.comment %}
+            <div class="comment-text" style="font-size: 0.85rem;">{{ task.comment|linebreaksbr }}</div>
+          {% else %}
+            <div class="comment-text text-muted" style="font-size: 0.85rem;">Нет комментария</div>
+          {% endif %}
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="showEditCommentForm(this, {{ task.id }})">Редактировать</button>
+        </div>
+
+        <!-- Форма редактирования комментария (скрыта по умолчанию) -->
+        <div class="comment-edit-form mb-2" style="display: none;">
+          <form onsubmit="saveComment(event, {{ task.id }})">
+            <textarea class="form-control form-control-sm comment-input" rows="2" placeholder="Введите комментарий...">{% if task.comment %}{{ task.comment }}{% endif %}</textarea>
+            <div class="mt-1 d-flex gap-2">
+              <button type="submit" class="btn btn-sm btn-success">Сохранить</button>
+              <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit(this)">Отмена</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons mt-auto">
+          <button type="button" class="btn-task btn-sm btn-success w-100" onclick="completeTask({{ task.id }})">Подтвердить выполнение</button>
+          <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="updateTaskStatus({{ task.id }}, 'in_progress')">Вернуть на доработку</button>
+          <button type="button" class="btn-task btn-sm btn-danger w-100" onclick="deleteTask({{ task.id }})">Удалить</button>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">Нет задач</p>
+    {% endfor %}
+  </div>
+  <!-- Done Column -->
+  <div id="done-column" class="kanban-column">
+    <h5>Выполнено</h5>
+    {% for task in done_tasks %}
+      <div class="task-card draggable" draggable="true" data-task-id="{{ task.id }}">
+        <div class="task-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ task.title }}</h6>
+          {% if task.category %}
+            <span class="badge rounded-pill" style="background-color: {{ task.category.color }}; color: white;">
+              {{ task.category.name }}
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">Без категории</span>
+          {% endif %}
+        </div>
+        {% if task.is_priority %}
+          <span class="badge bg-danger ms-2" title="Приоритетная задача">!</span>
+        {% endif %}
+        <!-- Теги -->
+        {% if task.tags.all %}
+          <div class="mt-2 mb-2">
+            {% for tag in task.tags.all %}
+              <span class="badge bg-light text-dark border me-1" style="font-size: 0.7rem;">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Отображение комментария -->
+        <div class="comment-display mt-2 small mb-2">
+          <small class="text-muted d-block">Комментарий:</small>
+          {% if task.comment %}
+            <div class="comment-text" style="font-size: 0.85rem;">{{ task.comment|linebreaksbr }}</div>
+          {% else %}
+            <div class="comment-text text-muted" style="font-size: 0.85rem;">Нет комментария</div>
+          {% endif %}
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="showEditCommentForm(this, {{ task.id }})">Редактировать</button>
+        </div>
+
+        <!-- Форма редактирования комментария (скрыта по умолчанию) -->
+        <div class="comment-edit-form mb-2" style="display: none;">
+          <form onsubmit="saveComment(event, {{ task.id }})">
+            <textarea class="form-control form-control-sm comment-input" rows="2" placeholder="Введите комментарий...">{% if task.comment %}{{ task.comment }}{% endif %}</textarea>
+            <div class="mt-1 d-flex gap-2">
+              <button type="submit" class="btn btn-sm btn-success">Сохранить</button>
+              <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit(this)">Отмена</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons mt-auto">
+          <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="updateTaskStatus({{ task.id }}, 'in_progress')">Вернуть</button>
+          <button type="button" class="btn-task btn-sm btn-danger w-100" onclick="deleteTask({{ task.id }})">Удалить</button>
+          <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="archiveTask({{ task.id }})">Переместить в архив</button>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">Нет задач</p>
+    {% endfor %}
+  </div>
+
+</div>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-image: url('/static/css/фон доски.png');
+  background-size: cover;
+  background-position: 80% center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+.d-flex.gap-3.overflow-auto.pb-3.p-3 {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem;
+  width: 100%;
+  min-width: fit-content;
+  scroll-behavior: smooth;
+}
+/* Стиль колонок */
+.kanban-column {
+  min-width: 350px;
+  max-width: 400px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+/* Заголовок колонки */
+.kanban-column h5 {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+/* Карточка задачи — улучшенный дизайн */
+.task-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease;
+  cursor: grab;
+}
+.task-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+.task-card:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+.task-header h6 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.badge {
+  font-size: 0.7rem;
+  padding: 0.25em 0.6em;
+}
+
+.comment-section,
+.comment-display {
+  margin-top: 0.5rem;
+}
+.comment-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.85rem;
+}
+.action-buttons {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.btn {
+  font-size: 1rem;
+}
+/* Красивые стили для .btn-task */
+.btn-task {
+  font-size: 0.7rem; /* Чуть увеличенный шрифт */
+  font-weight: 500;
+  border-radius: 20px; /* Закруглённые края */
+  padding: 0.4rem 0.75rem;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Цвета для разных типов кнопок */
+
+/* Success — зелёная */
+.btn-task.btn-success {
+  background-color: #28a745 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-task.btn-success:hover {
+  background-color: #218838 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+/* Danger — красная */
+.btn-task.btn-danger {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-task.btn-danger:hover {
+  background-color: #c82333 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+/* Secondary — серая */
+.btn-task.btn-secondary {
+  background-color: #6c757d !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-task.btn-secondary:hover {
+  background-color: #5a6268 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+}
+
+/* Общие эффекты */
+.btn-task:active {
+  transform: scale(0.98);
+}
+.dragging {
+  opacity: 0.7;
+}
+/* Стили для светлого navbar только на этой странице */
+.navbar {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .dropdown-item,
+.navbar .dropdown-toggle {
+  color: #000 !important;
+  font-weight: 500;
+}
+.dropdown-menu {
+  background-color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: #f1f1f1 !important;
+  color: #000 !important;
+}
+.btn-white-custom {
+  color: #000 !important;
+  border: none;
+  font-weight: 500;
+}
+.btn-white-custom:hover,
+.btn-white-custom:focus {
+  background-color: #f1f1f1;
+  color: #000 !important;
+}
+.footer-text {
+  font-size: 0.9rem;
+  color: #ccc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.form-label {
+  color: white;
+  font-weight: 500;
+}
+.btn-group .btn-check:checked + .btn {
+  background-color: #007a7a !important;
+  color: white !important;
+}
+</style>
+
+<script>
+function updateTaskStatus(taskId, newStatus) {
+  fetch("{% url 'kanban:update_task_status' 0 %}".replace("0", taskId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": "{{ csrf_token }}"
+    },
+    body: `status=${newStatus}`
+  }).then(response => {
+    if (response.ok) {
+      window.location.reload();
+    } else {
+      alert('Ошибка при обновлении статуса задачи');
+    }
+  });
+}
+
+function deleteTask(taskId) {
+  if (!confirm("Вы уверены, что хотите удалить эту задачу?")) return;
+  fetch("{% url 'kanban:delete_task' 0 %}".replace("0", taskId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": "{{ csrf_token }}"
+    }
+  }).then(response => {
+    if (response.ok) {
+      document.querySelector(`[data-task-id='${taskId}']`).remove();
+    } else {
+      alert("Ошибка при удалении задачи");
+    }
+  });
+}
+
+let draggedCard = null;
+
+document.querySelectorAll('.draggable').forEach(card => {
+  card.addEventListener('dragstart', () => {
+    draggedCard = card;
+    card.classList.add('dragging');
+  });
+  card.addEventListener('dragend', () => {
+    draggedCard = null;
+    card.classList.remove('dragging');
+  });
+});
+
+document.querySelectorAll('.kanban-column').forEach(column => {
+  column.addEventListener('dragover', e => e.preventDefault());
+  column.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!draggedCard) return;
+    const taskId = draggedCard.getAttribute('data-task-id');
+    let newStatus = '';
+    if (column.id === 'todo-column') newStatus = 'to_do';
+    if (column.id === 'inprogress-column') newStatus = 'in_progress';
+    if (column.id === 'onreview-column') newStatus = 'on_review';
+    if (column.id === 'done-column') newStatus = 'done';
+
+    fetch("{% url 'kanban:update_task_status' 0 %}".replace("0", taskId), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: `status=${newStatus}`
+    }).then(response => {
+      if (response.ok) {
+        draggedCard.remove();
+        column.appendChild(draggedCard);
+      } else {
+        alert('Ошибка при обновлении статуса задачи');
+      }
+    });
+  });
+});
+
+function showEditCommentForm(button, taskId) {
+  const card = button.closest('.task-card');
+  const display = card.querySelector('.comment-display');
+  const editForm = card.querySelector('.comment-edit-form');
+  display.style.display = 'none';
+  editForm.style.display = 'block';
+}
+
+function cancelEdit(button) {
+  const card = button.closest('.task-card');
+  const display = card.querySelector('.comment-display');
+  const editForm = card.querySelector('.comment-edit-form');
+  display.style.display = 'block';
+  editForm.style.display = 'none';
+}
+
+function saveComment(event, taskId) {
+  event.preventDefault();
+  const card = event.target.closest('.task-card');
+  const textarea = card.querySelector('.comment-input');
+  const newText = textarea.value.trim();
+
+  fetch("{% url 'kanban:update_task_comment' 0 %}".replace("0", taskId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": "{{ csrf_token }}"
+    },
+    body: `comment=${encodeURIComponent(newText)}`
+  }).then(response => {
+    if (response.ok) {
+      const display = card.querySelector('.comment-display .comment-text');
+      if (newText) {
+        display.innerHTML = newText.replace(/\n/g, '<br>');
+        display.classList.remove('text-muted');
+      } else {
+        display.textContent = 'Нет комментария';
+        display.classList.add('text-muted');
+      }
+      showEditCommentForm(card.querySelector('button'), taskId);
+    } else {
+      alert('Ошибка при сохранении комментария');
+    }
+  });
+}
+function archiveTask(taskId) {
+  if (!confirm("Вы уверены, что хотите переместить задачу в архив?")) return;
+  fetch("{% url 'kanban:archive_task' 0 %}".replace("0", taskId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": "{{ csrf_token }}"
+    }
+  }).then(response => {
+    if (response.ok) {
+      document.querySelector(`[data-task-id='${taskId}']`).remove();
+    } else {
+      return response.json().then(data => {
+        alert(`Ошибка: ${data.message}`);
+      });
+    }
+  }).catch(error => {
+    alert(`Произошла ошибка: ${error.message}`);
+  });
+}
+function toggleArchive() {
+  const isArchiveMode = document.body.classList.toggle('archive-mode');
+  const columns = document.querySelectorAll('.kanban-column');
+  const archiveBtn = document.getElementById('archive-toggle-btn');
+
+  if (isArchiveMode) {
+    archiveBtn.textContent = 'Вернуться';
+
+    // Скрываем все колонки, кроме "Выполнено"
+    columns.forEach(col => col.style.display = 'none');
+    const doneColumn = document.getElementById('done-column');
+    doneColumn.style.display = 'flex';
+
+    fetch("{% url 'kanban:get_archived_tasks' %}")
+      .then(response => response.json())
+      .then(data => {
+        const taskContainer = doneColumn.querySelector('.overflow-auto') || doneColumn;
+
+        // Очищаем текущие задачи
+        doneColumn.querySelectorAll('.task-card').forEach(card => card.remove());
+
+        if (data.length === 0) {
+          doneColumn.innerHTML += '<p class="text-muted">Нет архивных задач</p>';
+        } else {
+          data.forEach(task => {
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card draggable';
+            taskCard.draggable = true;
+            taskCard.dataset.taskId = task.id;
+            taskCard.innerHTML = `
+              <div class="task-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">${task.title}</h6>
+                ${task.category ? `<span class="badge rounded-pill" style="background-color: ${task.category.color}; color: white;">${task.category.name}</span>` : '<span class="badge bg-secondary">Без категории</span>'}
+              </div>
+              <div class="comment-display mt-2 small mb-2">
+                <small class="text-muted d-block">Комментарий:</small>
+                <div class="comment-text" style="font-size: 0.85rem;">${task.comment || 'Нет комментария'}</div>
+              </div>
+              <div class="action-buttons mt-auto">
+                <button type="button" class="btn btn-sm btn-success w-100" onclick="restoreTask(${task.id})">Взять в работу</button>
+              </div>
+            `;
+            taskContainer.appendChild(taskCard);
+          });
+        }
+      });
+
+  } else {
+    archiveBtn.textContent = 'Проверить архив';
+    location.reload();
+  }
+}
+function restoreTask(taskId) {
+  if (!confirm("Вы уверены, что хотите взять эту задачу в работу?")) return;
+  fetch("{% url 'kanban:restore_task' 0 %}".replace("0", taskId), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": "{{ csrf_token }}"
+    }
+  }).then(response => {
+    if (response.ok) {
+      alert("Задача взята в работу");
+      document.querySelector(`[data-task-id='${taskId}']`).remove();
+    } else {
+      alert("Ошибка при восстановлении задачи");
+    }
+  });
+}
+  function launchFireworks() {
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        ticks: 200,
+        gravity: 0.5,
+        scalar: 1.2,
+        shapes: ['circle', 'square'],
+        colors: ['#bb0000', '#ffffff', '#f73be5', '#00d4ff', '#fff200']
+    });
+}
+function completeTask(taskId) {
+    fetch("{% url 'kanban:update_task_status' 0 %}".replace("0", taskId), {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `status=done`
+    }).then(response => {
+        if (response.ok) {
+            // Показываем салют
+            launchFireworks();
+
+            // Обновляем интерфейс
+            document.querySelector(`[data-task-id='${taskId}']`).remove();
+        } else {
+            alert('Ошибка при обновлении статуса');
+        }
+    });
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+{% endblock %}

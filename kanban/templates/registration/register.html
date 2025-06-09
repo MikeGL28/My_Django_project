@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block body %}
+<style>
+  body {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+
+  .registration-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeIn 0.6s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 0 0.2rem rgba(37, 117, 252, 0.25);
+  }
+
+  .btn-primary {
+    background-color: #2575fc;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #1a5fcc;
+  }
+
+  .text-link a {
+    color: #2575fc;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .text-link a:hover {
+    text-decoration: underline;
+  }
+
+  .alert-danger {
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .small.text-danger {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 576px) {
+    .registration-card {
+      margin: 1rem;
+    }
+  }
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    width: 100%;
+    max-width: 100%;
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="registration-card">
+        <h3 class="text-center mb-4">Создайте аккаунт</h3>
+
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            Пожалуйста, исправьте ошибки ниже.
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3 d-flex flex-column gap-1">
+            {{ form.username.label_tag }}
+            <div class="input-group">
+              {{ form.username }}
+              {% if form.username.errors %}
+                <small class="text-danger">{{ form.username.errors|striptags }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3 d-flex flex-column gap-1">
+            {{ form.email.label_tag }}
+            <div class="input-group">
+              {{ form.email }}
+              {% if form.email.errors %}
+                <small class="text-danger">{{ form.email.errors|striptags }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3 d-flex flex-column gap-1">
+            {{ form.password1.label_tag }}
+            <div class="input-group">
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <small class="text-danger">{{ form.password1.errors|striptags }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3 d-flex flex-column gap-1">
+            {{ form.password2.label_tag }}
+            <div class="input-group">
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <small class="text-danger">{{ form.password2.errors|striptags }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+        <p class="mt-3 text-center text-link">
+          Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+<div class="comment-display mt-2 small mb-2">
+  <small class="text-muted d-block">Комментарий:</small>
+  <div class="comment-text" style="font-size: 0.85rem;">
+    {{ task.comment|linebreaksbr|default:"Нет комментария" }}
+  </div>
+  <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="showEditCommentForm(this, {{ task.id }})">Редактировать</button>
+</div>
+
+<!-- Форма редактирования комментария -->
+<div class="comment-edit-form mb-2" style="display: none;">
+  <form onsubmit="saveComment(event, {{ task.id }})">
+    <textarea class="form-control form-control-sm comment-input" rows="2" placeholder="Введите комментарий...">{% if task.comment %}{{ task.comment }}{% endif %}</textarea>
+    <div class="mt-1 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-success">Сохранить</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit(this)">Отмена</button>
+    </div>
+  </form>
+</div>
+
+<div class="action-buttons mt-auto">
+  {% if task.status == 'to_do' %}
+    <button type="button" class="btn-task btn-sm btn-success w-100" onclick="updateTaskStatus({{ task.id }}, 'in_progress')">Начать</button>
+  {% elif task.status == 'in_progress' %}
+    <button type="button" class="btn-task btn-sm btn-success w-100" onclick="updateTaskStatus({{ task.id }}, 'on_review')">На проверку</button>
+  {% elif task.status == 'on_review' %}
+    <button type="button" class="btn-task btn-sm btn-success w-100" onclick="updateTaskStatus({{ task.id }}, 'done')">Завершить</button>
+    <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="updateTaskStatus({{ task.id }}, 'in_progress')">Вернуть на доработку</button>
+  {% elif task.status == 'done' %}
+    <button type="button" class="btn-task btn-sm btn-secondary w-100" onclick="archiveTask({{ task.id }})">Переместить в архив</button>
+  {% endif %}
+  <button type="button" class="btn-task btn-sm btn-danger w-100" onclick="deleteTask({{ task.id }})">Удалить</button>
+</div>

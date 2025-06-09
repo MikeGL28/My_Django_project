@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Редактировать задачу{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h2>Редактировать задачу</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="{% url 'kanban:kanban_board' %}" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}

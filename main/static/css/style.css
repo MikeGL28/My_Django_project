@@ -1,0 +1,62 @@
+/* Общие стили */
+/* Общие стили для body */
+body {
+    display: flex; /* Используем Flexbox */
+    flex-direction: column; /* Вертикальное расположение элементов */
+    min-height: 100vh; /* Минимальная высота равна высоте viewport */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Стили для main (основной контент) */
+main {
+    flex: 1; /* Занимает всё доступное пространство между header и footer */
+    padding: 20px;
+}
+
+/* Стили для navbar */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0);
+}
+
+.navbar-brand img {
+    width: 30px;
+    height: 30px;
+}
+
+.navbar-nav .nav-link {
+    color: #333 !important;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-item img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    footer {
+        text-align: center;
+    }
+}
+
+.dropdown-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: #f1f3f5 !important;
+  transform: translateX(5px);
+  font-weight: 500;
+}
+
+.dropdown-item span.fs-5 {
+  transition: transform 0.3s ease;
+}
+
+.dropdown-item:hover span.fs-5 {
+  transform: rotate(10deg) scale(1.1);
+}

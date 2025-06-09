@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Гитара{% endblock %}
+
+{% block body %}
+<h1>С музыкой по жизни 🎸</h1>
+
+<!-- Блок с текстом и фото -->
+<div class="about-section d-flex flex-wrap align-items-center">
+  <!-- Левая часть: текст -->
+  <div class="about-text col-md-6 col-12">
+    <p>
+      <strong>Музыка — это то, что делает мою жизнь ярче.</strong><br>
+      Я начал играть на гитаре ещё в музыкальной школе, и с тех пор она стала не просто инструментом, а верным спутником по жизни.
+    </p>
+
+    <p>
+      От первых простых аккордов до полноценных песен — каждый раз, когда я беру гитару в руки, ловлю моменты настоящего счастья. Это не просто хобби — это способ самовыражения, отдыха и даже медитации.
+    </p>
+
+    <h4>Что играю?</h4>
+    <p>
+      На этой странице вы найдёте список песен, которые я сейчас осваиваю или уже свободно исполняю. Здесь указаны исполнители, названия композиций и ссылки на аккорды — чтобы можно было повторить за мной.
+    </p>
+  </div>
+
+  <!-- Правая часть: фото -->
+  <div class="photo-container col-md-6 col-12 d-flex justify-content-center">
+    <img src="/media/hobbies/photo_5258289733228950667_y.jpg" alt="Моё фото с гитарой">
+  </div>
+</div>
+
+<!-- Песни -->
+<h2>Песни, которые играю и пою</h2>
+
+<div class="song-grid">
+  {% for song in songs %}
+    <div class="song-card">
+      <div class="song-card-inner">
+        <h3 class="song-artist">{{ song.artist }}</h3>
+        <h4 class="song-title">{{ song.title }}</h4>
+        <a href="{{ song.chords_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+          🔗 Посмотреть аккорды
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p>Пока нет добавленных песен.</p>
+  {% endfor %}
+</div>
+<br>
+<a href="{% url 'guitar:add_song' %}" class="btn btn-primary mb-3">
+  ➕ Добавить новую песню
+</a>
+
+<style>
+/* Основной стиль страницы */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  background-image: url('/static/css/pustaa-muzykal-naa-stranica-zastravsaa-na-derevannoi-stene-s-golovoi-gitary.jpg');
+  background-size: cover;
+  background-position: 80% center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Обёртка для текста и фото */
+.about-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Текст рядом с фото */
+.about-text {
+  flex: 1 1 600px;
+  max-width: 600px;
+}
+
+/* Контейнер с фото */
+.photo-container {
+  flex: 1 1 300px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Фото */
+.photo-container img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Сетка карточек */
+.song-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.song-card {
+  flex: 0 0 calc(33.33% - 14px); /* три в ряд */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.song-card:hover {
+  transform: scale(1.02);
+}
+
+.song-card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.song-artist {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.song-title {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+/* Адаптация под планшеты */
+@media (max-width: 768px) {
+  .about-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .photo-container img {
+    max-width: 300px;
+  }
+}
+
+/* Адаптация под мобильные устройства */
+@media (max-width: 480px) {
+  .photo-container img {
+    max-width: 250px;
+  }
+
+  .song-card {
+    flex: 0 0 100%;
+  }
+}
+</style>
+
+{% endblock %}
