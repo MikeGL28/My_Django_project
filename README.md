@@ -89,6 +89,7 @@ python manage.py createsuperuser
 Запустите бота (скрипт bot.py)
 Сообщение из бота будет автоматически отображаться на сайте
 # 📸 Примеры экранов (скриншоты)
+
 Главная страница
 ![image](https://github.com/user-attachments/assets/6ef56da4-c27b-4fba-b0a9-37f2263f3bad)
 Страница о программировании
@@ -117,6 +118,10 @@ python manage.py createsuperuser
 ![image](https://github.com/user-attachments/assets/c7d6c989-095e-4110-9637-1377d9ddbffd)
 Канбан-доска с формой добавления задачи. (При выполнении задачи появляется салют)
 ![image](https://github.com/user-attachments/assets/d0f7beb9-1d33-438b-befe-61932af387a0)
+Форма регистрации
+![image](https://github.com/user-attachments/assets/2eacead3-3107-45f2-b970-610f7de231db)
+Форма авторизации
+![image](https://github.com/user-attachments/assets/8c92e1ae-b133-4156-8c90-97fefbb0e8ff)
 
 
 # 📬 Обратная связь
